@@ -1,0 +1,30 @@
+{
+  "name": "knowledgebase-infra",
+  "version": "0.0.0",
+  "private": true,
+  "scripts": {
+    "deploy": "cdk -a 'tsx ./index.ts' deploy --force --require-approval never",
+    "prepare": "husky"
+  },
+  "devDependencies": {
+    "@aws-sdk/client-cloudformation": "3.540.0",
+    "@smithy/util-waiter": "2.2.0",
+    "@tsconfig/node20": "20.1.4",
+    "@types/node": "20.12.2",
+    "@typescript-eslint/eslint-plugin": "7.4.0",
+    "@typescript-eslint/parser": "7.4.0",
+    "aws-cdk": "2.134.0",
+    "aws-cdk-lib": "2.134.0",
+    "constructs": "10.3.0",
+    "dotenv": "16.4.5",
+    "eslint": "8.57.0",
+    "eslint-config-prettier": "9.1.0",
+    "eslint-plugin-import": "2.29.1",
+    "husky": "9.0.11",
+    "lint-staged": "15.2.2",
+    "prettier": "3.2.5",
+    "prettier-plugin-packagejson": "2.4.13",
+    "tsx": "4.7.1",
+    "typescript": "5.4.3"
+  }
+}
