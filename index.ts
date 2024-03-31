@@ -13,11 +13,12 @@ import { App, Stack, StackProps } from "aws-cdk-lib";
 import { Certificate } from "aws-cdk-lib/aws-certificatemanager";
 import {
   AllowedMethods,
-  CacheCookieBehavior,
   CachePolicy,
   Distribution,
   OriginProtocolPolicy,
+  OriginRequestPolicy,
   PriceClass,
+  ResponseHeadersPolicy,
 } from "aws-cdk-lib/aws-cloudfront";
 import { HttpOrigin } from "aws-cdk-lib/aws-cloudfront-origins";
 import {
@@ -84,9 +85,17 @@ class KnowledgeBaseStack extends Stack {
     if (!process.env.CERTIFICATE_ARN) {
       throw new Error("Certificate ARN not defined. Stop.");
     }
+    if (!process.env.GOOGLE_APP_ID) {
+      throw new Error("Google App ID not defined. Stop.");
+    }
+    if (!process.env.GOOGLE_APP_SECRET) {
+      throw new Error("Google App Secret not defined. Stop.");
+    }
 
     super(scope, id, props);
     const certificateArn: string = process.env.CERTIFICATE_ARN;
+    const googleAppId: string = process.env.GOOGLE_APP_ID;
+    const googleAppSecret: string = process.env.GOOGLE_APP_SECRET;
 
     const recordName = "kb";
     const domainName = "icssc.club";
@@ -134,7 +143,10 @@ class KnowledgeBaseStack extends Stack {
       bucketKey: setupScript.s3ObjectKey,
     });
 
-    instance.userData.addExecuteFileCommand({ filePath, arguments: `-a https://${appUrl}` });
+    instance.userData.addExecuteFileCommand({
+      filePath,
+      arguments: `-a https://${appUrl} -i ${googleAppId} -s ${googleAppSecret}`,
+    });
 
     const distribution = new Distribution(this, `${id}-distribution`, {
       defaultBehavior: {
@@ -142,9 +154,9 @@ class KnowledgeBaseStack extends Stack {
           protocolPolicy: OriginProtocolPolicy.HTTP_ONLY,
         }),
         allowedMethods: AllowedMethods.ALLOW_ALL,
-        cachePolicy: new CachePolicy(this, `${id}-cache-policy`, {
-          cookieBehavior: CacheCookieBehavior.all(),
-        }),
+        cachePolicy: CachePolicy.CACHING_DISABLED,
+        responseHeadersPolicy: ResponseHeadersPolicy.CORS_ALLOW_ALL_ORIGINS,
+        originRequestPolicy: OriginRequestPolicy.ALL_VIEWER,
       },
       certificate: Certificate.fromCertificateArn(this, `${id}-certificate`, certificateArn),
       domainNames: [appUrl],

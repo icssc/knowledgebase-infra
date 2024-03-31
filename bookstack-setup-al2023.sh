@@ -1,11 +1,17 @@
 #!/usr/bin/env bash
-while getopts 'a:' opt; do
+while getopts 'a:i:s:' opt; do
   case "$opt" in
     a)
       APP_URL="$OPTARG"
       ;;
+    i)
+      GOOGLE_APP_ID="$OPTARG"
+      ;;
+    s)
+      GOOGLE_APP_SECRET="$OPTARG"
+      ;;
     ?|h)
-      echo "Usage: $(basename $0) -a [app URL]"
+      echo "Usage: $(basename $0) -a [app URL] -i [Google OAuth App ID] -s [Google OAuth App Secret]"
       exit 1
       ;;
   esac
@@ -13,7 +19,7 @@ done
 
 shift "$(($OPTIND -1))"
 
-if [[ -z ${APP_URL} ]]; then
+if [[ -z ${APP_URL} || -z ${GOOGLE_APP_ID} || -z ${GOOGLE_APP_SECRET} ]]; then
   echo "Required environment variables not provided. Stop."
   exit 1
 fi
@@ -133,8 +139,12 @@ DB_HOST=localhost
 DB_DATABASE=bookstack
 DB_USERNAME=bookstack
 DB_PASSWORD=${DB_PASSWORD}
-MAIL_FROM_NAME="no-reply"
+MAIL_FROM_NAME=no-reply
 MAIL_FROM=noreply@localhost.localdomain
+GOOGLE_AUTO_REGISTER=true
+GOOGLE_AUTO_CONFIRM_EMAIL=true
+GOOGLE_APP_ID=${GOOGLE_APP_ID}
+GOOGLE_APP_SECRET=${GOOGLE_APP_SECRET}
 EOF
 php artisan key:generate --no-interaction --force
 
